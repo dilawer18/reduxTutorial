@@ -1,50 +1,45 @@
 import React, { useEffect, useState } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import NavigationStrings from '../../constants/NavigationStrings';
+import store from '../../redux/store'
 import { decrement, increment } from '../../redux/action';
-import store from '../../redux/store';
-
-const SecondScreen = ({navigation,route}) => {
-    const [data, setData]=useState()
-
-    const fetchData = ()=>{
-        let homeScreenData = route?.params
-        if(!!homeScreenData){
-            setData(homeScreenData)
-        }
-        console.log(homeScreenData, "homeScreenData")
-    }
-
+import NavigationStrings from '../../constants/NavigationStrings';
+const Home = ({ subscribe, getState, dispatch ,navigation,route}) => {
+    const [number, setNumber] = useState(0)
+    const [flatItem, setFlatItem] = useState([])
+    
+    
     useEffect(() => {
-        fetchData();
+
         const unsubscribe = store.subscribe(() => {
             let value = store.getState().num 
-            setData(value)
+            let data = store.getState().myData 
+            setNumber(value)
+            setFlatItem(data)
         })
         return () => {
             unsubscribe()
         }
     }, [route?.params])
     const onInc = () => {
-        store.dispatch(increment(data))
+        store.dispatch(increment(number))
     }
     const onDec = () => {
-        if (data>0){
-            store.dispatch(decrement(data))
+        if (number >0){
+            store.dispatch(decrement(number))
         }
         else {
            return
         }
+        
     }
     return (
         <View style={styles.container}>
             <View style={styles.cart}>
             <TouchableOpacity
-                onPress={onDec}
-                >
+                onPress={onDec}>
                 <Text style={styles.txtStyle}>-</Text>
             </TouchableOpacity>
-            <Text style={styles.txtStyle}>{data}</Text>
+            <Text style={styles.txtStyle}>{number}</Text>
             <TouchableOpacity
                 onPress={onInc}
                 >
@@ -55,11 +50,13 @@ const SecondScreen = ({navigation,route}) => {
             <Button 
             title='click'
             onPress={()=>{
-                navigation.navigate(NavigationStrings.HOME,data)
+                navigation.navigate(NavigationStrings.SECOND_SCREEN,number)
             }}
             >
 
             </Button>
+
+            
         </View>
     );
 };
@@ -88,4 +85,13 @@ const styles = StyleSheet.create({
         color:'white'
     }
 });
-export default SecondScreen;
+export default Home;
+
+
+
+
+
+
+
+
+
