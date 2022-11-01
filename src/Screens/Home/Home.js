@@ -1,66 +1,77 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useSelector } from 'react-redux';
+import NavigationStrings from '../../constants/NavigationStrings';
+import { decrement, increment } from '../../redux/action';
 import store from '../../redux/store';
 
 const Home = ({ route, navigation }) => {
-
-    const [flatItem, setFlatItem] = useState(store.getState().state.myData)
-
-
-    useEffect(() => {
-        const unsubscribe = store.subscribe(() => {
-            let data = store.getState().state.myData
-            setFlatItem(data)
-        })
-        return () => {
-            unsubscribe()
-        }
-    }, [route?.params])
-
-    const onAddClick = ()=>{
-        
+    
+const storeData=useSelector(state=>state.myData)
+let arrLen=0
+    for (let index = 0; index < storeData.length; index++) {
+       if (storeData[index].quantity>0) {
+        arrLen=arrLen+1
+       }  
+       else{
+        continue
+       }
     }
+console.log("StoreData",storeData)
 
-
-    const renderItem = ({ item }) => {
+const onInc=(item)=>{
+    store.dispatch(increment(item.quantity,item._id))
+}
+const onDec=(item)=>{
+    store.dispatch(decrement(item.quantity,item._id))
+}
+    const renderItem = ({ item,index }) => {
         return (
-            <View style={styles.flatStyle}>
-                <View >
+            <TouchableOpacity
+             onPress={()=>navigation.navigate(NavigationStrings.SECOND_SCREEN ,{title:item.title , desc:item.desc})}
+              style={styles.flatStyle}>
+               
+                <View>
                 <Text>{item?.title}</Text>
                 <Text>{item?.desc}</Text>
                 </View>
-                {item.quantity !== 0 ? <View style={styles.cart}>
+        
+                {item.quantity>=1 ? <View style={styles.cart}>
                     <TouchableOpacity
-                    // onPress={onDec}
+                    onPress={()=>onDec(item)}
                     >
                         <Text style={styles.txtStyle}>-</Text>
                     </TouchableOpacity>
                     <Text style={styles.txtStyle}>{item.quantity}</Text>
                     <TouchableOpacity
-                    // onPress={onInc}
+                    onPress={()=>onInc(item)}
                     >
                         <Text style={styles.txtStyle}>+</Text>
                     </TouchableOpacity>
                 </View> :
                     <TouchableOpacity
                         style={styles.addBtnStyle}
-
+                        onPress={()=>onInc(item)}
                     >
                         <Text style={styles.txtStyle}>Add</Text>
                     </TouchableOpacity>
                 }
-            </View>
+            </TouchableOpacity>
         )
     }
     return (
         <SafeAreaView style={styles.container}>
 
-            <View style={{ margin: 16 }}>
+            <View style={{flex:1, margin: 16 }}>
                 <FlatList
-                    data={flatItem}
+                    data={storeData}
                     renderItem={renderItem}
+                    extraData={storeData}
                     ItemSeparatorComponent={() => <View style={{ marginBottom: 16 }} />}
                 />
+            </View>
+            <View style={styles.screenDataStyle}>
+                <Text>ScreenData:{arrLen}</Text>
             </View>
 
         </SafeAreaView>
@@ -104,15 +115,12 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         alignItems: 'center',
         justifyContent: "center"
+    },
+    screenDataStyle:{
+        flex:1,
+        position:'absolute',
+        bottom:20,
+        right:20
     }
 });
 export default Home;
-
-
-
-
-
-
-
-
-

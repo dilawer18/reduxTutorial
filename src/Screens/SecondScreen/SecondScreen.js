@@ -1,91 +1,47 @@
-import React, { useEffect, useState } from 'react';
-import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import NavigationStrings from '../../constants/NavigationStrings';
-import { decrement, increment } from '../../redux/action';
-import store from '../../redux/store';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import colorPath from '../../constants/colorPath';
+import { moderateScale, moderateScaleVertical } from '../../styles/responsiveSize';
 
 const SecondScreen = ({navigation,route}) => {
-    const [data, setData]=useState()
+    const prevData=route?.params.data
+    console.log(prevData,"routes")
 
-    const fetchData = ()=>{
-        let homeScreenData = route?.params
-        if(!!homeScreenData){
-            setData(homeScreenData)
-        }
-        console.log(homeScreenData, "homeScreenData")
+    const [state,setState]=useState([
+    {
+        title:'',
+        desc:''
     }
+    ])
 
-    useEffect(() => {
-        fetchData();
-        const unsubscribe = store.subscribe(() => {
-            let value = store.getState().num 
-            setData(value)
-        })
-        return () => {
-            unsubscribe()
-        }
-    }, [route?.params])
-    const onInc = () => {
-        store.dispatch(increment(data))
-    }
-    const onDec = () => {
-        if (data>0){
-            store.dispatch(decrement(data))
-        }
-        else {
-           return
-        }
-    }
     return (
         <View style={styles.container}>
             <View style={styles.cart}>
-            <TouchableOpacity
-                onPress={onDec}
-                >
-                <Text style={styles.txtStyle}>-</Text>
-            </TouchableOpacity>
-            <Text style={styles.txtStyle}>{data}</Text>
-            <TouchableOpacity
-                onPress={onInc}
-                >
-                  <Text style={styles.txtStyle}>+</Text>
-            </TouchableOpacity>
-            
-            </View>
-            <Button 
-            title='click'
-            onPress={()=>{
-                navigation.navigate(NavigationStrings.HOME,data)
-            }}
-            >
+          <Text style={styles.txtStyle}>Title: {route.params.title}</Text>
+          <Text style={styles.txtStyle}>Description: {route.params.desc}</Text>
+          </View>
 
-            </Button>
         </View>
     );
 };
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-
-
-    },
-    cart:{
-        flexDirection:"row",
-        width:88,
-        height:32,
-        backgroundColor:'#008B8B',
-        justifyContent:"center",
-        alignItems:'center',
-        justifyContent:'space-between',
-        paddingHorizontal:6,
-        borderRadius:4
-
-        
+       margin:24,
+       alignItems:'center'
     },
     txtStyle:{
-        color:'white'
-    }
+        color:colorPath.white
+    },
+    cart: {
+        flexDirection: "column",
+        width: moderateScale(350),
+        height: moderateScaleVertical(68),
+        backgroundColor:colorPath.teal,
+       justifyContent:"space-evenly",
+        paddingHorizontal: 14,
+        borderRadius: 4,
+    
+    },
 });
 export default SecondScreen;
